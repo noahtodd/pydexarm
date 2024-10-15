@@ -131,9 +131,9 @@ def run_gcode():
         print(line)
         if line[0] == ";" or line[0] == "\n":
             continue
-        if line[0] == "A":
-            print("Sending command to arduino: ", line[1:])
-            arduino.write(bytes(line[1:], 'utf-8'))
+        if line[0] in ["A", "B", "C"]:
+            print("Sending command to arduino: ", line)
+            arduino.write(bytes(line, 'utf-8'))
             time.sleep(0.05)
         else:
             dexarm2._send_cmd(line)
@@ -153,9 +153,9 @@ def run_gcode2():
         print(line)
         if line[0] == ";" or line[0] == "\n":
             continue
-        if line[0] == "A":
-            print("Sending command to arduino: ", line[1:])
-            arduino.write(bytes(line[1:], 'utf-8'))
+        if line[0] in ["A", "B", "C"]:
+            print("Sending command to arduino: ", line)
+            arduino.write(bytes(line, 'utf-8'))
             time.sleep(0.05)
         else:
             dexarm2._send_cmd(line)
@@ -314,6 +314,7 @@ record_place_button2 = tk.Button(root, text="Record Place2", command=add_release
 record_nat_button2 = tk.Button(root, text="Record Nature2", command=add_natural2)
 comment_button = tk.Button(root, text="Add Comment", command=add_comment)
 comment_entry = tk.Entry(root)
+
 '''release_button = tk.Button(root, text="Release", command=arduino_send(release))
 natural_button = tk.Button(root, text="Natural", command=arduino_send(natural))
 intake_button = tk.Button(root, text="Intake", command=arduino_send(intake))

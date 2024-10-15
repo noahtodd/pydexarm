@@ -10,7 +10,10 @@ SerialConnection = True
 def write_read(x):
     arduino.write(bytes(x, 'utf-8'))
     time.sleep(0.05)
-    data = arduino.readline()
+    # Read data until newline character is received
+    data = ''
+    while data == '' or data[-1] != '\n':
+        data += arduino.readline().decode("utf-8")
     return data
 
 while SerialConnection:
