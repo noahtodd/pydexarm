@@ -96,7 +96,7 @@ def cut_line():
 
 def record_position():
     x, y, z, _, _, _, _ = dexarm.get_current_position()
-    print("Recording position: ", x, y, z)
+    print("Recording position: X",x, " Y",y, " Z",z)
     gcode_command = f"G1 X{x} Y{y} Z{z}\n"
     gcode_file.write(gcode_command)
 
@@ -124,6 +124,10 @@ def run_gcode():
         print(line)
         if line[0] == ";" or line[0] == "\n":
             continue
+        if line[0] in ["A", "B", "C", "D"]:
+            print("Sending command to arduino: ", line)
+            arduino.write(bytes(line, 'utf-8'))
+            time.sleep(0.05)
         else:
             dexarm._send_cmd(line)
     print("\nStarting sequence 2")
@@ -131,7 +135,7 @@ def run_gcode():
         print(line)
         if line[0] == ";" or line[0] == "\n":
             continue
-        if line[0] in ["A", "B", "C"]:
+        if line[0] in ["A", "B", "C", "D"]:
             print("Sending command to arduino: ", line)
             arduino.write(bytes(line, 'utf-8'))
             time.sleep(0.05)
@@ -142,6 +146,10 @@ def run_gcode():
         print(line)
         if line[0] == ";" or line[0] == "\n":
             continue
+        if line[0] in ["A", "B", "C", "D"]:
+            print("Sending command to arduino: ", line)
+            arduino.write(bytes(line, 'utf-8'))
+            time.sleep(0.05)
         else:
             dexarm._send_cmd(line)
     print("\nFinished running gcode")
@@ -159,6 +167,20 @@ def run_gcode2():
             time.sleep(0.05)
         else:
             dexarm2._send_cmd(line)
+
+def run_gcode3():
+    gcode_file = open("gcode_commands_3.txt", "r")
+    print("Starting sequence 3")
+    for line in gcode_file:
+        print(line)
+        if line[0] == ";" or line[0] == "\n":
+            continue
+        if line[0] in ["A", "B", "C"]:
+            print("Sending command to arduino: ", line)
+            arduino.write(bytes(line, 'utf-8'))
+            time.sleep(0.05)
+        else:
+            dexarm._send_cmd(line)
 
 def move_up2():
     print("Up button pressed")
@@ -205,7 +227,7 @@ def rotate_to_02():
 
 def record_position2():
     x, y, z, _, _, _, _ = dexarm2.get_current_position()
-    print("Recording position: ", x, y, z)
+    print("Recording position: X",x, " Y",y, " Z",z)
     gcode_command = f"G1 X{x} Y{y} Z{z}\n"
     gcode_file.write(gcode_command)
 
@@ -226,6 +248,36 @@ def add_natural2():
 
 def add_comment():
     gcode_command = f"; {comment_entry.get()}\n"
+    gcode_file.write(gcode_command)
+
+# function that takes in a letter value for a servo and a value and sends it to the arduino
+def rotateServoA(servoLetter, value): 
+    print("Sending command to arduino: ", servoLetter, value)
+    arduino.write(bytes(servoLetter + " " + str(value), 'utf-8'))
+    time.sleep(0.05)
+
+def rotateServoB(): # takes the value from the slider and sends it to the arduino
+    value = servo_b_slider.get()
+    print("Sending command to arduino: ", value)
+    arduino.write(bytes("B "+str(value), 'utf-8'))
+    time.sleep(0.05)
+
+def rotateServoC(): # takes the value from the slider and sends it to the arduino
+    value = servo_c_slider.get()
+    print("Sending command to arduino: ", value)
+    arduino.write(bytes("C "+str(value), 'utf-8'))
+    time.sleep(0.05)
+
+def recordServoB():
+    value = servo_b_slider.get()
+    print("Recording servo B position: ", value)
+    gcode_command = f"B {value}\n"
+    gcode_file.write(gcode_command)
+
+def recordServoC():
+    value = servo_c_slider.get()
+    print("Recording servo C position: ", value)
+    gcode_command = f"C {value}\n"
     gcode_file.write(gcode_command)
 
 '''
@@ -290,6 +342,15 @@ rotate_to_angle_slider_label = tk.Label(root, text="Rotate to angle, deg")
 rotate_to_angle_slider = tk.Scale(root, from_= 0, to=360, orient=tk.HORIZONTAL, command=rotation_slider , length=300)
 # Create a button that rotates the arm to 0 degrees
 rotate_to_0_button = tk.Button(root, text="Rotate to 0", command=rotate_to_0)
+# Create a slider that reads an input between 0-500 and a button that sends that value to Servo B
+servo_b_slider_label = tk.Label(root, text="Servo B")
+servo_b_slider = tk.Scale(root, from_=100, to=1000, orient=tk.HORIZONTAL, length=300)
+servo_b_button = tk.Button(root, text="Rotate Servo B", command=rotateServoB)
+record_servo_b_button = tk.Button(root, text="Record Servo B", command=recordServoB)
+servo_c_slider_label = tk.Label(root, text="Servo C")
+servo_c_slider = tk.Scale(root, from_=100, to=1000, orient=tk.HORIZONTAL, length=300)
+servo_c_button = tk.Button(root, text="Rotate Servo C", command=rotateServoC)
+record_servo_c_button = tk.Button(root, text="Record Servo C", command=recordServoC)
 # Buttons for recording gcode commands
 record_position_button = tk.Button(root, text="Record Position", command=record_position)
 record_pick_button = tk.Button(root, text="Record Pick", command=add_grip)
@@ -297,6 +358,7 @@ record_place_button = tk.Button(root, text="Record Place", command=add_release)
 record_nat_button = tk.Button(root, text="Record Nature", command=dexarm.air_picker_nature)
 run_gcode_button = tk.Button(root, text="Run Gcode", command=run_gcode)
 run_gcode_button2 = tk.Button(root, text="Run Gcode2", command=run_gcode2)
+run_gcode_button3 = tk.Button(root, text="Run Gcode3", command=run_gcode3)  
 # Dexarm 2
 up_button2 = tk.Button(root, text="Up2", command=move_up2)
 Z0_button2 = tk.Button(root, text="Z02", command=move_Z02)
@@ -357,7 +419,17 @@ record_pick_button.grid(row=9, column=1)
 record_place_button.grid(row=9, column=2)
 record_nat_button.grid(row=9, column=3)
 run_gcode_button.grid(row=9, column=4)
-run_gcode_button2.grid(row=10, column=5)
+run_gcode_button2.grid(row=10, column=4)
+run_gcode_button3.grid(row=10, column=5)
+# Servo B slider and button
+servo_b_slider_label.grid(row=11, column=0)
+servo_b_slider.grid(row=11, column=1, columnspan=3)
+servo_b_button.grid(row=11, column=4)
+record_servo_b_button.grid(row=11, column=5)
+servo_c_slider_label.grid(row=12, column=0)
+servo_c_slider.grid(row=12, column=1, columnspan=3)
+servo_c_button.grid(row=12, column=4)
+record_servo_c_button.grid(row=12, column=5)
 # Dexarm 2
 up_button2.grid(row=0, column=8)
 Z0_button2.grid(row=1, column=8)
@@ -366,7 +438,7 @@ right_button2.grid(row=1, column=7)
 left_button2.grid(row=1, column=5)
 forward_button2.grid(row=0, column=6)
 backward_button2.grid(row=2, column=6)
-home_button2.grid(row=1, column=6)
+# home_button2.grid(row=1, column=6)
 # position1_button2.grid(row=2, column=7)
 rotate_to_0_button2.grid(row=8, column=5)
 record_position_button2.grid(row=9, column=5)

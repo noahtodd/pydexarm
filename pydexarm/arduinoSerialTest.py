@@ -23,5 +23,9 @@ while SerialConnection:
         arduino.close()
         SerialConnection = False
         break
+    # if number doesn't start with a letter and end with a number, then skip the loop
+    if not num[0].isalpha() or not num[-1].isdigit():
+        print("Invalid input. Please enter a valid input.")
+        continue
     value = write_read(num)
     print(value)  # Printing the value

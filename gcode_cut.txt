@@ -1,0 +1,55 @@
+G1 F4000 Z50.0
+Q G1 F2000 Z50.0
+G1 X0.0
+Q G1 X0.0
+; Get lower lid
+G0 F4000 X67.6 Y260.6 Z-4.0
+Q G1 X25.83 Y325.9 Z110.26
+G1 F1000 X67.6 Y260.6 Z-17.6
+Q G1 X25.83 Y325.9 Z43.26 
+M1000 ; pick lower lid
+G4 S1 
+G1 X67.6 Y260.6 Z7.8
+Q G1 X25.83 Y325.9 Z24.46
+G0 F4000 X-162.6 Y282.0 Z-17.2
+Q G1 X25.83 Y325.9 Z100.66
+G1 F1000 X-162.6 Y282.0 Z-47.4
+Q G1 X25.83 Y325.9 Z126.06
+M1002 ; place lower lid
+G4 S1
+G1 X-162.6 Y282.0 Z-22.0
+Q G0 X76.63 Y269.7 Z126.06
+G1 X40.6 Y286.8 Z-22.0
+G1 X41.0 Y285.6 Z-39.6
+M1000 ; pick lower shield
+G4 S1
+G1 X41.0 Y285.6 Z-14.2
+G1 X-162.2 Y285.6 Z-14.2
+G1 X-162.6 Y282.8 Z-46.0
+M1002 ; place lower shield
+G4 S1
+G1 X-162.6 Y282.8 Z-20.6
+B 364
+G1 X-71.0 Y333.6 Z-10.2
+G1 X-72.2 Y330.0 Z-30.8
+G1 X-71.0 Y330.0 Z-30.8
+C 210
+G1 X-71.0 Y330.0 Z-5.6
+G1 X-131.8 Y234.4 Z-5.6
+B 404
+G1 X-132.2 Y236.4 Z-30.6
+C 297
+G1 X-132.2 Y236.4 Z-5.4
+G1 X-31.4 Y236.4 Z-5.4
+F 245 ; open bottle cover
+Q G1 X76.63 Y269.7 Z21.46 ; dips into radioisotope
+Q G1 X76.63 Y269.7 Z123.06
+F 430 ; close bottle cover
+Q G4 P250
+Q G1 X147.43 Y295.1 Z123.06
+; end comment
+
+F 430 ; close bottle cover
+E 300 ; close pipette disposal bin
+D 240 ; reset tip ejector
+A 275 ; release plunger
