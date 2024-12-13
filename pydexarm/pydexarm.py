@@ -1,5 +1,6 @@
 import serial
 import re
+import time
 
 class Dexarm:
     # creates feedrate variable
@@ -15,7 +16,8 @@ class Dexarm:
         else:
             print('Failed to open serial port')
 
-    def _send_cmd(self, data):
+    # I need to add a send command method that can be parallelized
+    '''def _send_cmd(self, data):
         self.ser.write(data.encode())
         while True:
             str = self.ser.readline().decode("utf-8")
@@ -25,17 +27,60 @@ class Dexarm:
                     break
                 else:
                     print("read：", str)
+    '''
+    def _send_cmd(self, data):
+        # stores the start time of the function
+        # start = time.time()
+        # checks to see if the dexarm is executing a command and waits until it is done
+        # if self.ser.in_waiting > 0:
+        while True:
+            str = self.ser.readline().decode("utf-8")
+            if len(str) > 0:
+                if str.find("ok") > -1:
+                    print("read ok")
+                    break
+                else:
+                    print("read：", str)
+            # breaks the loop if it has run for more than 5 seconds
+            '''if time.time() - start > 5:
+                print("timeout")
+                break'''
+        # sends the command
+        self.ser.write(data.encode())
+        
+        '''str = self.ser.readline().decode("utf-8")
+        if str.find("ok") == -1 and str != "":
+            while True:
+                str = self.ser.readline().decode("utf-8")
+                if len(str) > 0:
+                    if str.find("ok") > -1:
+                        print("read ok")
+                        break
+                    else:
+                        print("read：", str)
+        self.ser.write(data.encode())
+        '''
 
     def setup(self):
+        # clears the buffer
+        if self.is_open:
+            self.ser.reset_input_buffer()
+        else:
+            print('Serial port not open')
         # sets positioning to absolute
         cmd = "G90\r\n"
-        self._send_cmd(cmd)
+        self.ser.write(cmd.encode())
+        self.relative_positioning = False
+    
+    def factory_reset(self):
+        self._send_cmd("M502\r")
 
     def go_home(self):
         self._send_cmd("M1112\r")
 
-    def set_workorigin(self):
-        self._send_cmd("G92 X0 Y0 Z0 E0\r")
+    def set_work_origin(self, X, Y, Z):
+        print("Setting work origin")
+        self._send_cmd("G92 X" + str(X) + " Y" + str(Y) + " Z" + str(Z) + "\r\n")
 
     def set_acceleration(self, acceleration, travel_acceleration, retract_acceleration=60):
         cmd = "M204"+"P" + str(acceleration) + "T"+str(travel_acceleration) + "T" + str(retract_acceleration) + "\r\n"
@@ -78,18 +123,18 @@ class Dexarm:
         self._send_cmd(cmd)
 
     def move_to_Z0(self,feedrate=default_feedrate):
-        if self.relative_positioning:
-            cmd = "G90\r\n"
-            self._send_cmd(cmd)
-            self.relative_positioning = False
+        # if self.relative_positioning:
+        cmd = "G90\r\n"
+        self._send_cmd(cmd)
+        self.relative_positioning = False
         cmd = "G1"+"F" + str(feedrate) + "Z0\r\n"
         self._send_cmd(cmd)
 
     def relative_move(self, x, y, z, feedrate=default_feedrate):
-        if not self.relative_positioning:
-            cmd = "G91\r\n"
-            self._send_cmd(cmd)
-            self.relative_positioning = True
+        # if not self.relative_positioning:
+        cmd = "G91\r\n"
+        self._send_cmd(cmd)
+        self.relative_positioning = True
         cmd = "G1"+"F" + str(feedrate) + "X"+str(x) + "Y" + str(y) + "Z" + str(z) + "\r\n"
         self._send_cmd(cmd)
 
@@ -101,6 +146,7 @@ class Dexarm:
         self.ser.write('M114\r'.encode())
         while True:
             str = self.ser.readline().decode("utf-8")
+            print(str)
             if len(str) > 0:
                 if str.find("X:") > -1:
                     temp = re.findall(r"[-+]?\d*\.\d+|\d+", str)
@@ -114,11 +160,38 @@ class Dexarm:
                     a = float(temp[0])
                     b = float(temp[1])
                     c = float(temp[2])
-            if len(str) > 0:
+            # if all variables have been assigned, break the loop and return the values
+            if 'x' in locals() and 'y' in locals() and 'z' in locals() and 'e' in locals() and 'a' in locals() and 'b' in locals() and 'c' in locals():
+                return x,y,z,e,a,b,c       
+            '''if len(str) > 0:
                 if str.find("ok") > -1:
-                    return x,y,z,e,a,b,c
-            else:
-                return 0,0,0,0,0,0,0
+                    return x,y,z,e,a,b,c'''
+            # else:
+            #    return 0,0,0,0,0,0,0
+        return 0,0,0,0,0,0,0
+    
+    # get current position based on the set work origin
+    def get_current_position_workorigin(self):
+        # start timeout timer
+        start = time.time()
+        self.ser.write('M114\r'.encode())
+        while True:
+            str = self.ser.readline().decode("utf-8")
+            if len(str) > 0:
+                if str.find("X:") > -1 and str.find("Real") == -1:
+                    temp = re.findall(r"[-+]?\d*\.\d+|\d+", str)
+                    x = float(temp[0])
+                    y = float(temp[1])
+                    z = float(temp[2])
+                    e = float(temp[3])
+            # if all variables have been assigned, break the loop and return the values
+            if 'x' in locals() and 'y' in locals() and 'z' in locals() and 'e' in locals():
+                return x,y,z,e      
+            # breaks the loop if it has run for more than 3 seconds
+            if time.time() - start > 3:
+                print("timeout")
+                break
+        return 0,0,0,0
 
     """Delay"""
     def dealy_ms(self, value):

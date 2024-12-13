@@ -1,0 +1,203 @@
+G90
+Q G90
+G1 F4000 Z50.0
+Q G1 F4000 Z75
+F 430 ; close bottle cover
+E 300 ; close pipette disposal bin
+D 240 ; reset tip ejector
+A 275 ; release plunger
+B 350 ; set rotation servo to neutral
+C 280 ; set clamp to open
+; start bottom lid placement
+G0 F4000 X177.6 Y-74.4 Z8.0
+G1 F4000 Z-28.6
+M1000 ; Air Pick Grab
+G4 P500
+G1 F4000 Z0
+G0 X-49.6 Y-48.8
+G1 F4000 Z-52.4
+M1002 ; Air Pick Natural
+G4 P500
+G1 Z0
+; start bottom shield placement
+G0 X151.1 Y-48.3
+G1 Z-51.0
+M1000 ; Air Pick Grab
+G4 P500
+G1 Z0
+G0 X-50.2 Y-49.3
+G1 Z-51.4
+M1002 ; Air Pick Natural
+G4 P500
+G1 Z0
+; start PCB placement
+G0 X39.7  Y-3.6
+B 351
+G1 Z-41
+G1 X41.7 Y-3.6
+G4 P450
+G4 P50
+C 210
+G4 P250
+G1 Z0
+G0 X-18.6 Y-97.2 
+G1 Z-36.8
+G4 P450
+G4 P50
+C 281
+G4 P250
+; start pipette sequence in parallel
+D 240 ; reset tip ejector
+G1 Z0
+; start ring placement
+Q G1 F4000 X0 Y0 Z-50
+B 227
+Q G1 X-0.2 Y0.0 Z-61.0
+F 245 ; open bottle cover
+Q G1 Z40.6
+G1 X87.4  Y-33.2
+Q G4 P50
+G1 Z-37.0
+G1 X87.4  Y-30.6
+G4 P450
+Q G1 X52.0 Y-56.4 
+G4 P50
+C 200
+Q G4 P50
+A 143 ; press plunger
+G4 P250
+Q G1 Z-61.0
+G1 Z0
+Q G4 P50
+G1 X-16.4 Y-98.6 
+B 199
+A 275 ; release plunger
+G1 Z-36.2
+G4 P50
+Q G4 P500
+C 288
+G4 P250
+Q G1 Z15.2
+G1 Z0
+G0 X177.6 Y-74.4
+Q G1 X102.8 Y-56.4 
+; second base lid placement
+G4 P50
+Q G0 X118.4 Y-26.8 
+G1 Z-35.0
+Q G1 Z-44.0
+F 430 ; close bottle cover
+M1000 ; Air Pick Grab
+Q G4 P50
+G4 P500
+A 130 ; eject liquid
+G1 Z0
+Q G4 P50
+G0 X0.4 Y1.4
+Q G4 S1
+G1 Z-51.8
+Q G1 Z15
+M1002 ; Air Pick Natural
+E 141 ; open pipette disposal bin
+G4 S1
+Q G1 X-8.6 Y-26.8
+G1 Z0
+A 275 ; release plunger
+; second bottom shield placement
+G0 X151.1 Y-48.3
+Q G1 X-8.6 Y-59.2 Z6.8
+G1 Z-52.28
+Q G4 P50
+M1000 ; Air Pick Grab
+D 205 ; eject tip
+G4 P500
+Q G1 X0 Y0 Z0
+G1 Z0
+Q G4 P50
+G0 X-0.4 Y1.3
+E 300 ; close pipette disposal bin
+G1 Z-50.5
+D 240 ; reset tip Ejector
+M1002 ; Air Pick Natural
+G4 P500
+G1 Z0
+; second PCB placement
+G1 X39.7 Y-3.6
+B 351
+G1 Z-42.5
+G1 X41.7 Y-3.6
+G4 P450
+G4 P50
+C 210
+G4 P250
+G1 Z0
+G1 X21.7  Y-53.1  
+G1 Z-37.1
+G4 P450
+G4 P50
+C 275
+G4 P250
+G1 Z0
+; second ring placement
+Q G1 F4000 X0 Y8 Z-50
+B 227
+Q G1 X-0.2 Y8.0 Z-61.0
+F 245 ; open bottle cover
+Q G1 Z40.6
+G1 X87.4  Y-33.2
+B 199
+Q G4 P50
+G1 Z-39.2
+Q G1 X52.0 Y-56.4 
+G1 X87.4  Y-31.2
+G4 P450
+G4 P50
+A 143 ; press plunger
+C 200
+G4 P250
+Q G1 Z-61.0
+G1 Z0
+Q G4 P50
+G1 X22.5  Y-51.7
+A 275 ; release plunger
+G1 Z-36
+G4 P450
+G4 P50
+Q G4 P500
+C 288
+Q G1 Z15.2
+G4 P250
+Q G1 X102.8 Y-56.4 
+G1 Z0
+G1 X100 Y0
+Q G0 X169.2 Y24 Z-40
+Q Z-44
+F 430 ; close bottle cover
+Q G4 P50
+Q G4 P50
+A 130 ; eject liquid
+Q G4 P50
+Q G4 S1
+Q G0 Z-35
+Q G0 X120 Y0 Z-30
+Q G0 Z25
+E 141 ; open pipette disposal bin
+; test PCB
+B 364
+Q G1 X-8.6 Y-26.8
+Q G4 P50
+A 275 ; release plunger
+Q G4 P450
+Q G0 Z25
+Q G0 X-8.6 Y-59.2 Z6.8
+G1 X17.4 Y-90.4
+G4 P50
+Q G4 P50
+D 205 ; eject tip
+G1 Z-48.3
+Q G0 X0 Y0 Z0
+G1 P500
+D 240 ; reset tip ejector
+G1 Z0
+E 300 ; close pipette disposal bin
+

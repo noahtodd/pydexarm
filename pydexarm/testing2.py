@@ -73,7 +73,8 @@ def move_backward(): # backward
 
 def position1():
     print("Position 1 button pressed")
-    dexarm.move_to(50, 320, 20, feedrate=feedrate)
+    
+    dexarm.move_to(0, 300, 0, feedrate=feedrate)
 
 def distance_slider(value):
     global increment_distance 
@@ -85,10 +86,15 @@ def speed_slider(value):
     feedrate = int(value)
     print("New speed: ", value)
 
-def update_position_label():
+'''def update_position_label(): # original
     x, y, z, e, a, b, c = dexarm.get_current_position()
     x2, y2, z2, e2, a2, b2, c2 = dexarm2.get_current_position()
-    position_finder_label.config(text="X" + str(x) + " Y" + str(y) + " Z" + str(z) + " E" + str(e) + " A" + str(a) + " B" + str(b) + " C" + str(c) + "  Dexarm 2: X" + str(x2) + " Y" + str(y2) + " Z" + str(z2) + " E" + str(e2) + " A" + str(a2) + " B" + str(b2) + " C" + str(c2))
+    position_finder_label.config(text="X" + str(x) + " Y" + str(y) + " Z" + str(z) + " E" + str(e) + " A" + str(a) + " B" + str(b) + " C" + str(c) + "  Dexarm 2: X" + str(x2) + " Y" + str(y2) + " Z" + str(z2) + " E" + str(e2) + " A" + str(a2) + " B" + str(b2) + " C" + str(c2))'''
+
+def update_position_label():
+    x, y, z, e = dexarm.get_current_position_workorigin()
+    x2, y2, z2, e2 = dexarm2.get_current_position_workorigin()
+    position_finder_label.config(text="X" + str(x) + " Y" + str(y) + " Z" + str(z) + " E" + str(e) + "  Dexarm 2: X" + str(x2) + " Y" + str(y2) + " Z" + str(z2) + " E" + str(e2))
 
 def rotate_to_0():
     x, y, z, e, a, b, c = dexarm.get_current_position()
@@ -112,7 +118,7 @@ def cut_line():
     dexarm._send_cmd(cmd)
 
 def record_position():
-    x, y, z, _, _, _, _ = dexarm.get_current_position()
+    x, y, z, _ = dexarm.get_current_position_workorigin()
     print("Recording position: X",x, " Y",y, " Z",z)
     gcode_command = f"G1 X{x} Y{y} Z{z}\n"
     gcode_file.write(gcode_command)
@@ -132,14 +138,84 @@ def add_natural():
     gcode_command = f"M1002 ; Air Pick Natural\nG4 S1\n"
     gcode_file.write(gcode_command)
 
+def set_work_origin():
+    print("Setting work origin")
+    dexarm.set_work_origin(-110.1, 329.6, -36.8)
+
+def work_origin():
+    print("Going to work origin")
+    '''dexarm._send_cmd("G1 Z25\n")
+    dexarm._send_cmd("G1 X-110.1 Y329.6\n")
+    dexarm._send_cmd("G1 Z-36.8\n")'''
+    dexarm.move_to(-110.1, 329.6, -36.8, feedrate=feedrate)
+
+def factory_reset():
+    print("Factory reset button pressed")
+    dexarm.factory_reset()
+
 # Function that runs the gcode commands
 def run_gcode():
+    # starts timer
+    start = time.time()
     gcode_file = open("gcode_commands_1.txt", "r")
+    print("\nStarting sequence")
+    # get starting line number
+    lineNumber = -1
+    try:
+        lineNumber = int(line_number_entry.get())
+    except:
+        print("Invalid line number. Starting at line 0")
+    lineNumber = int(line_number_entry.get())
+    current_line_number = -1
+    dexarm.setup()
+    dexarm2.setup()
     for line in gcode_file:
-        print(line)
-        dexarm2._send_cmd(line)
-    print("\nFinished running gcode")
+        # if the escape key is pressed, stop the loop
+        if keyboard.is_pressed('q') or keyboard.is_pressed('x') or keyboard.is_pressed('Q') or keyboard.is_pressed('X'):
+            print("Stopping loop as 'q' was pressed.")
+            break
+        current_line_number += 1
+        # remove all lines before the line number
+        if lineNumber > current_line_number:
+            continue
+        line = line.lstrip()
+        if line.strip() == "":  # Skip empty lines
+            continue
+        elif line[0] == ";" or line[0] == "\n":
+            print("Comment: ", line[1:])
+            continue
+        # if line has 'quit', end sequence
+        elif line == "quit":
+            print("Sequence ended by Gcode")
+            break
+        elif line[0] in ["A", "B", "C", "D", "E", "F", "H"]:
+            if ";" in line:
+                line = line[0:line.index(";")]
+            print("Sending command to arduino: ", line)
+            arduino.write(bytes(line, 'utf-8'))
+            # read data until newline character is received
+            data = ''
+            while data == '' or data[-1] != '\n':
+                data += arduino.readline().decode("utf-8")
+            print("Arduino returned: " + data)
+        elif line[0] in ["R"]: # if the line has X, M, G as the first letter, send the remaining letters to dexarm
+            line = line[1:].strip() + "\n"
+            dexarm._send_cmd(line)
+        elif line[0] in ["P", "G", "M"]: # this is for any unchanged commands. I can't add it to the conditional above because these lines to need to be cut at the beginning
+            line = line.strip() + "\n"
+            dexarm._send_cmd(line)
+        elif line[0] in ["Q"]: # if the line has Q as the first letter, send the remaining letters to dexarm2
+            line = line[1:].strip() + "\n"
+            dexarm2._send_cmd(line)
+        else: # print the line and say it didn't send to anything
+            print("Line did not send to anything: ", line)
+        # add \n to the end of the line
+        # line = line + "\n"
+        # print(line)
+        # dexarm2._send_cmd(line)
+    print("\nFinished running gcode. Elapsed time: ", time.time() - start)
 
+# original run_gcode function
 '''
 def run_gcode():
     lineNumber = line_number_entry.get()
@@ -216,7 +292,7 @@ def move_backward2(): # backward
 
 def position12():
     print("Position 1 button pressed")
-    dexarm2.move_to(50, 320, 20, feedrate=feedrate)
+    dexarm2.move_to(0, 300, 0, feedrate=feedrate)
 
 def rotate_to_02():
     x, y, z, e, a, b, c = dexarm2.get_current_position()
@@ -230,7 +306,7 @@ def rotate_to_02():
     print("Rotate to 0 button pressed. Moving to: ", target, " degrees --- coordinates: ", "X: ", x, " Y: ", y, " Z: ", z, " E: ", e)
 
 def record_position2():
-    x, y, z, _, _, _, _ = dexarm2.get_current_position()
+    x, y, z, _ = dexarm2.get_current_position_workorigin()
     print("Recording position: X",x, " Y",y, " Z",z)
     gcode_command = f"Q G1 X{x} Y{y} Z{z}\n"
     gcode_file.write(gcode_command)
@@ -249,6 +325,21 @@ def add_natural2():
     dexarm2.air_picker_nature()
     gcode_command = f"Q M1002\n"
     gcode_file.write(gcode_command)
+
+def set_work_origin2():
+    # print("Setting work origin") # already done in pydexarm
+    dexarm2.set_work_origin(23.9, 326, 34.2)
+
+def work_origin2():
+    print("Going to work origin")
+    '''dexarm2._send_cmd("G1 Z25\n")
+    dexarm2._send_cmd("G1 X23.9 Y326\n")
+    dexarm2._send_cmd("G1 Z34.2\n")'''
+    dexarm2.move_to(24, 326, 34.2, feedrate=feedrate)
+
+def factory_reset2():
+    print("Factory reset button pressed")
+    dexarm2.factory_reset()
 
 def add_comment():
     gcode_command = f"; {comment_entry.get()}\n"
@@ -295,14 +386,14 @@ def release_plunger():
 # Function that presses the plunger before getting liquid
 def press_plunger():
     print("Plunger press recorded")
-    position = 120
+    position = 143
     arduino.write(bytes("A "+str(position), 'utf-8'))
     time.sleep(0.05)
     gcode_file.write("A "+ str(position) + " ; press plunger\n")
 # Function that ejects liquid in the plunger
 def eject_liquid():
     print("Liquid eject recorded")
-    position = 105
+    position = 130
     arduino.write(bytes("A "+str(position), 'utf-8'))
     time.sleep(0.05)
     gcode_file.write("A "+ str(position) + " ; eject liquid\n")
@@ -369,12 +460,31 @@ def move_heating_2():
     arduino.write(bytes("H "+str(position), 'utf-8'))
     time.sleep(0.05)
     gcode_file.write("H "+ str(position) + " ; move heating element to position 2\n")
+# Moves heating element to rest position
+def move_heating_rest():
+    print("Heating element rest position recorded")
+    position = 400
+    arduino.write(bytes("H "+str(position), 'utf-8'))
+    time.sleep(0.05)
+    gcode_file.write("H "+ str(position) + " ; move heating element to rest position\n")
 
 # Function to handle the Shift_L key press
 def handle_shift_l(event):
     global current_distance_slider_value
     current_distance_slider_value = distance_slider.get()  # Store the current value
-    distance_slider.set(12.7)  # Set the new value
+    # if distance slider is not 25, set it to 25. Otherwise, set it to 1
+    if current_distance_slider_value != 25 and current_distance_slider_value != 1:
+        # sets decimal slider to .4 and distance slider to 25
+        distance_decimal_slider.set(.4)
+        distance_slider.set(25)
+    elif current_distance_slider_value == 1:
+        # sets decimal slider to .2 and distance slider to 0
+        distance_decimal_slider.set(.2)
+        distance_slider.set(0)
+    else:
+        # sets decimal slider to .1 and distance slider to 1
+        distance_decimal_slider.set(.1)
+        distance_slider.set(1)
 
 
 
@@ -405,6 +515,8 @@ if dexarm_connected:
     forward_button = tk.Button(root, text="Forward", command=move_forward)
     backward_button = tk.Button(root, text="Backward", command=move_backward)
     home_button = tk.Button(root, text="Home", command=dexarm.go_home)
+    set_work_origin_button = tk.Button(root, text="Set Origin", command=set_work_origin)
+    go_to_work_origin_button = tk.Button(root, text="Go to Origin", command=work_origin)
     position1_button = tk.Button(root, text="Position 1", command=position1)
     # Create picker buttons
     air_picker_label = tk.Label(root, text="Air Picker")
@@ -421,6 +533,8 @@ if dexarm_connected:
     rotate_to_angle_slider = tk.Scale(root, from_= 0, to=360, orient=tk.HORIZONTAL, command=rotation_slider , length=300)
     # Create a button that rotates the arm to 0 degrees
     rotate_to_0_button = tk.Button(root, text="Rotate to 0", command=rotate_to_0)
+    # factory reset button
+    factory_reset_button = tk.Button(root, text="Factory Reset", command=factory_reset)
 # Create sliders
 distance_slider_label = tk.Label(root, text="Increment Size, mm")
 distance_slider = tk.Scale(root, from_=0, to=40, orient=tk.HORIZONTAL, command=distance_slider, length=300)
@@ -444,13 +558,17 @@ record_servo_c_button = tk.Button(root, text="Record Servo C", command=recordSer
 record_position_button = tk.Button(root, text="Record Position", command=record_position)
 record_pick_button = tk.Button(root, text="Record Pick", command=add_grip)
 record_place_button = tk.Button(root, text="Record Place", command=add_release)
-record_nat_button = tk.Button(root, text="Record Nature", command=dexarm.air_picker_nature)
+record_nat_button = tk.Button(root, text="Record Nature", command=add_natural)
 # Text box for adding a starting line for gcode. The line number is set to 0 by default
 line_number_label = tk.Label(root, text="Starting line number")
 line_number_entry = tk.Entry(root)
 line_number_entry.insert(0, "0")
 # Button for running gcode commands
 run_gcode_button = tk.Button(root, text="Run Gcode", command=run_gcode)
+# text box for adding a starting line for gcode. The line number is set to 0 by default
+line_number_label = tk.Label(root, text="Starting line number")
+line_number_entry = tk.Entry(root)
+line_number_entry.insert(0, "0")
 # Dexarm 2Q
 if dexarm2_connected:
     up_button2 = tk.Button(root, text="Up2", command=move_up2)
@@ -458,17 +576,23 @@ if dexarm2_connected:
     down_button2 = tk.Button(root, text="Down2", command=move_down2)
     right_button2 = tk.Button(root, text="Right2", command=move_right2)
     left_button2 = tk.Button(root, text="Left2", command=move_left2)
+    home_button2 = tk.Button(root, text="Home2", command=dexarm2.go_home)
     forward_button2 = tk.Button(root, text="Forward2", command=move_forward2)
     backward_button2 = tk.Button(root, text="Backward2", command=move_backward2)
     home_button2 = tk.Button(root, text="Home2", command=dexarm2.go_home)
+    set_work_origin_button2 = tk.Button(root, text="Set Origin2", command=set_work_origin2)
+    go_to_work_origin_button2 = tk.Button(root, text="Go to Origin2", command=work_origin2)
     position1_button2 = tk.Button(root, text="Position 12", command=position12)
     rotate_to_0_button2 = tk.Button(root, text="Rotate to 02", command=rotate_to_02)
     record_position_button2 = tk.Button(root, text="Record Position2", command=record_position2)
     record_pick_button2 = tk.Button(root, text="Record Pick2", command=add_grip2)
     record_place_button2 = tk.Button(root, text="Record Place2", command=add_release2)
     record_nat_button2 = tk.Button(root, text="Record Nature2", command=add_natural2)
+    factory_reset_button2 = tk.Button(root, text="Factory Reset2", command=factory_reset2)
 comment_button = tk.Button(root, text="Add Comment", command=add_comment)
 comment_entry = tk.Entry(root, width=50)
+# fills comment box with "add comment"
+comment_entry.insert(0, "add comment")
 # Buttons for controlling the pipette
 pipette_label = tk.Label(root, text="Pipette Control")
 release_button = tk.Button(root, text="Release", command=release_plunger)
@@ -484,7 +608,8 @@ liquid_cover_close_button = tk.Button(root, text="Close Liquid Cover", command=c
 tip_cover_label = tk.Label(root, text="Tip Disposal Cover")
 tip_cover_open_button = tk.Button(root, text="Open Tip Cover", command=open_bin)
 tip_cover_close_button = tk.Button(root, text="Close Tip Cover", command=close_bin)
-
+heating_label = tk.Label(root, text="Heating Element")
+move_heating_rest_button = tk.Button(root, text="Move Heating to Rest", command=move_heating_rest)
 
 
 
@@ -499,6 +624,9 @@ if dexarm_connected:
     forward_button.grid(row=0, column=1)
     backward_button.grid(row=2, column=1)
     position1_button.grid(row=2, column=4) 
+    set_work_origin_button.grid(row=0, column=2)
+    go_to_work_origin_button.grid(row=2, column=2)
+    factory_reset_button.grid(row=0, column=4)
     # Place the picker buttons on the window
     air_picker_label.grid(row=6, column=0)
     air_picker_pick_button.grid(row=6, column=1)
@@ -524,7 +652,9 @@ distance_slider.grid(row=4, column=1, columnspan=3)
 distance_decimal_slider.grid(row=4, column=4)
 speed_slider_label.grid(row=5, column=0)
 speed_slider.grid(row=5, column=1, columnspan=3)
-run_gcode_button.grid(row=9, column=4)
+run_gcode_button.grid(row=5, column=4)
+line_number_label.grid(row=5, column=5)
+line_number_entry.grid(row=5, column=6)
 # Servo B slider and button
 servo_b_slider_label.grid(row=11, column=0)
 servo_b_slider.grid(row=11, column=1, columnspan=3)
@@ -543,8 +673,11 @@ if dexarm2_connected:
     left_button2.grid(row=1, column=5)
     forward_button2.grid(row=0, column=6)
     backward_button2.grid(row=2, column=6)
-    # home_button2.grid(row=1, column=6)
+    home_button2.grid(row=1, column=6)
+    position1_button2.grid(row=0, column=9)
     # position1_button2.grid(row=2, column=7)
+    set_work_origin_button2.grid(row=0, column=7)
+    go_to_work_origin_button2.grid(row=2, column=7)
     rotate_to_0_button2.grid(row=8, column=5)
     record_position_button2.grid(row=9, column=5)
     record_pick_button2.grid(row=9, column=6)
@@ -568,11 +701,14 @@ liquid_cover_close_button.grid(row=12, column=8)
 tip_cover_label.grid(row=13, column=6)
 tip_cover_open_button.grid(row=13, column=7)
 tip_cover_close_button.grid(row=13, column=8)
+heating_label.grid(row=14, column=6)
+move_heating_rest_button.grid(row=14, column=7)
 
 # Bind the Shift_L key to the handle_shift_l function
 root.bind("<Shift_L>", handle_shift_l)
+root.bind("<Shift_R>", handle_shift_l)
 # makes it so releasing the shift key sets the increment distance back to the original value
-root.bind("<KeyRelease-Shift_L>", lambda event: distance_slider.set(current_distance_slider_value))
+# root.bind("<KeyRelease-Shift_L>", lambda event: distance_slider.set(current_distance_slider_value))
 
 # Makes it so the w s a d keys can be used to control the dexarm
 root.bind("<comma>", lambda event: move_forward())
@@ -594,7 +730,12 @@ root.bind("<z>", lambda event: move_down2())
 root.bind("<Return>", lambda event: record_position2())
 
 # dexarm setup
-dexarm.setup()
+# tries to run the setup command
+try:
+    dexarm.setup()
+    dexarm2.setup()
+except: 
+    print("Dexarms are not connected")
 
 # Start the event loop
 root.mainloop()

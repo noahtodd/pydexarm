@@ -1,0 +1,284 @@
+G90
+Q G90
+G1 F4000 Z25.0
+Q G1 F4000 Z75
+F 430 ; close bottle cover
+E 300 ; close pipette disposal bin
+D 240 ; reset tip ejector
+A 275 ; release plunger
+B 350 ; set rotation servo to neutral
+C 280 ; set clamp to open
+H 100 ; set heating element to rest
+; start bottom lid placement
+G0 X66.6 Y255 Z0
+G1 Z-15.7
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+G0 X-160.1 Y280 Z0
+G1 Z-39.2
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z0
+; bottom shield placement
+G0 X41.2 Y281 Z0
+G1 Z-39.2
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+G0 X-160.9 Y280.0 
+G1 Z-37.0
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z0
+; PCB placement
+B 350 ; set grip rotation
+G1 X-71.8 Y325.8
+C 276 ; set clamp to open
+G0 Z-28.3
+G0 X-70.5 Y326.3 Z-28.3
+G4 P450
+G4 P50
+C 222
+G4 P450
+G4 P50
+G1 Z0
+G0 X-127.5 Y232.2
+G1 Z-22.7
+G4 P450
+G4 P50
+C 276
+G4 P450
+G4 P50
+G1 Z0
+; ring placement
+B 230
+G0 X-24.2 Y297.4 Z0
+G1 Z-23
+G1 X-25.5 Y299.6 Z-23
+G4 P450
+G4 P50
+C 190
+G4 P450
+G4 P50
+G1 Z0
+G0 X-127.5 Y232.2 Z0
+B 216
+G1 Z-22.6
+G4 P450
+G4 P50
+C 260
+G4 P450
+G4 P50
+G1 Z0
+; end of 1st battery 1st part
+
+
+; add heating element movement
+H 150
+; --
+; --
+; test electronics
+B 342
+G0 X-99 Y 252 Z0
+C 203
+G1 Z-28
+G1 X-100 Y252.5
+G1 Z-31.8
+G4 S1
+G1 Z0
+; top shield placement
+B 346
+C 342
+M2101 P90
+G0 X-84.4 Y255.5 Z0
+G1 Z-39.4
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+M2101 P88
+G0 X-160.9 Y280.6 Z0
+G1 Z-34.9
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z0
+; top lid placement
+B 100
+M2101 P90
+G0 X-33.6 Y255.8 Z0
+G1 Z-43.7
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+G0 X-160 Y278.5 Z0
+G1 Z-34.8
+M2101 P90
+G4 P250
+M2101 P60
+G4 P250
+M2101 P120
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z0
+; Move battery to bin
+B 100
+C 300
+G0 X-124.5  Y234.1 Z0
+G1 Z-34.5
+G4 P450
+G4 P50
+C 280
+B 120
+G4 P450
+G1 X-124 Y233.0
+C 200
+G1 Z10
+G0 X22.7 Y349.4 Z10
+B 237
+G1 Z-15
+G4 P450
+G4 P50
+C 300
+G4 P450
+G4 P50
+G1 Z10
+G0 Y300
+; end sequence for testing
+quit
+; end of battery assembly
+; -
+; -
+; start of second battery
+; -
+; -
+; start bottom lid placement
+G0 X66.6 Y255 Z0
+G1 Z-20.5
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+G0 X-110.1 Y330 Z0
+G1 Z-39.2
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z0
+; bottom shield placement
+G0 X41.2 Y280 Z0
+G1 Z-40.6
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+G0 X-110.9 Y330.0 
+G1 Z-37.0
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z0
+; PCB placement
+B 350 ; set grip rotation
+G1 X-71.8 Y325.8
+C 276 ; set clamp to open
+G0 Z-29.3
+G1 X-70.5 Y326.3
+G4 P450
+G4 P50
+C 222
+G4 P450
+G4 P50
+G1 Z0
+G0 X-89.3 Y277.5 
+G1 Z-22.7
+G4 P450
+G4 P50
+C 276
+G4 P450
+G4 P50
+G1 Z0
+; ring placement
+B 230
+G0 X-24.2 Y297.4 Z0
+G1 Z-25.2
+G1 X-24.8 Y299.4
+G4 P450
+G4 P50
+C 190
+G4 P450
+G4 P50
+G1 Z0
+G0 X-87.5 Y276.3 Z0
+B 216
+G1 Z-22.6
+G4 P450
+G4 P50
+C 260
+G4 P450
+G4 P50
+G1 Z0
+; add heating element movement
+H 200
+; --
+; --
+; test electronics
+B 342
+G0 X-55.7 Y 293.4 Z0
+C 203
+G1 Z-28
+G1 X-56.8 Y293.4
+G1 Z-31.8
+G4 S1
+G1 Z0
+; top shield placement
+B 346
+C 342
+M2101 P90
+G0 X-84.4 Y255.5 Z0
+G1 Z-40.5
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+M2101 P88
+G0 X-110.9 Y330.6 Z0
+G1 Z-34.9
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z0
+; top lid placement
+B 100
+M2101 P90
+G0 X-57.9 Y227.9 Z0
+G1 Z-43.7
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+G0 X-110 Y328.5 Z0
+G1 Z-34.8
+M2101 P90
+G4 P250
+M2101 P60
+G4 P250
+M2101 P120
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z0
+; Move battery to bin
+B 110
+G0 X-84.4 Y278.7 Z0
+C300
+G1 Z-34.5
+G1 X-87 Y278.7 Z-34.1
+G4 P450
+G4 P50
+C 225
+G4 P450
+G4 P50
+G1 Z10
+G0 X22.7 Y349.4 Z10
+B 237
+G1 Z-15
+G4 P450
+G4 P50
+C 300
+G4 P450
+G4 P50
+G1 Z10
+G0 Y300
+; end of battery assembly

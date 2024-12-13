@@ -1,0 +1,214 @@
+G90
+Q G90
+G1 F5000 Z25.0
+Q G1 F5000 Z100
+A 275 ; release plunger
+B 350 ; set rotation servo to neutral
+C 280 ; set clamp to open
+D 240 ; reset tip ejector
+E 300 ; close pipette disposal bin
+F 430 ; close bottle cover
+H 400 ; set heating element to rest
+; start bottom lid placement
+G0 X68.4 Y254 Z0
+Q G1 X0 Y326
+G1 Z-35
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+G0 X-159.4 Y280.1 Z0
+G1 Z-39.2
+M1002 ; Air Pick Natural
+; jog pick
+G91
+G1 X0.5
+G1 Y0.5
+G1 X-1
+G1 Y-1
+G1 X1
+G90
+; end jog
+G4 S1
+G1 Z0
+; bottom shield placement
+G0 X42.8 Y278 Z0
+G1 Z-44.2
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z0
+G0 X-159 Y278.6 
+G1 Z-37.0
+M1002 ; Air Pick Natural
+; jog pick
+G91
+G1 X0.5
+G1 Y0.5
+G1 X-1
+G1 Y-1
+G1 X1
+G90
+G4 S1
+G1 Z0
+; PCB placement
+B 350 ; set grip rotation
+G0 X-72.0  Y325.4
+C 276 ; set clamp to open
+G0 Z-34.4
+G0 X-69.2 Y325.4
+G4 P450
+G4 P50
+C 205
+G4 P450
+G4 P50
+G1 Z0
+G0 X-128.2 Y230.4
+B 340
+G1 Z-22.7
+C 233
+G4 P450
+G4 P50
+C 250
+G4 P450
+G4 P50
+G1 Z0
+; ring placement 5
+C 300
+B 230
+G0 X-23.4 Y295 Z0
+G1 Z-34.1
+G1 X-23.4 Y297.3
+G4 P450
+G4 P50
+C 216
+G4 P450
+G4 P50
+G1 Z0
+G0 X-125.5 Y230.8 Z0
+Q G1 X16 Y326 Z41.8
+B 211
+G1 Z-24
+C 230
+G4 P450
+Q G1 Z23
+G4 P50
+C 249
+G4 P450
+Q G1 Z105.9
+G4 P50
+G1 Z0
+F 245 ; open bottle cover
+; end of first sequence
+; start bottom lid placement
+G0 X67.1 Y254 Z0
+Q G1 X75 Y270 Z105.9
+A 143 ; press plunger
+Q G1 X75 Y270 Z29.7
+A 275 ; release plunger
+Q G1 X75 Y270 Z105.9
+Q G1 X75 Y320.6 Z105.9
+F 430 ; close bottle cover
+Q G1 X141 Y300 Z48.5
+Q G4 P450
+Q G4 P50
+A 130 ; eject liquid
+Q G4 P850
+Q G4 P50
+Q G1 X144.8 Y306.1 Z99.3
+H 273 ; Move heating element
+Q G0 X11.2
+E 141 ; open pipette disposal bin
+Q G1 X11.2 Y273.0 Z89.4
+Q G4 P450
+Q G4 P50
+D 205 ; eject tip
+Q G4 P450
+Q G4 P50
+E 300 ; close pipette disposal bin
+Q G1 X11.2 Y323.8 Z89.4
+D 240 ; reset tip ejector
+A 275 ; release plunger
+; H 400 ; move heating element to rest
+; top shield placement
+B 346
+C 342
+M2101 P90
+G0 X-84.4 Y255.5 Z25
+G1 Z-43.6
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z25
+M2101 P100
+G0 X-160.7 Y280 Z0
+H 400 ; move heating element to rest
+G1 Z-34.9
+; jog pick
+G91
+G1 X0.5
+G1 Y0.5
+G1 X-1
+G1 Y-1
+G1 X1
+G90
+; jog end
+M2101 P100
+G4 S1
+G1 Z-33
+G1 Z-34.9
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z25
+; top lid placement
+B 100
+M2101 P90
+G0 X17.4 Y253.2 Z0
+G1 Z-43.7
+M1000 ; Air Pick Grab
+G4 S1
+G1 Z25
+M2101 P110
+G0 X-159.4 Y279 Z25
+G1 Z-34
+M2101 P130
+G4 P250
+M2101 P90
+G4 P250
+M2101 P110
+G1 Z-35.8
+M1002 ; Air Pick Natural
+G4 P500
+; jog pick
+G91
+G1 X0.5
+G1 Y0.5
+G1 X-1
+G1 Y-1
+G1 X1
+G1 X-0.5 Y0.5
+G90
+G4 P500
+G1 Z25
+; Move battery to bin
+B 100
+C 300
+G0 X-123.7 Y233.0 Z0
+G1 Z-36
+G4 P450
+G4 P50
+C 260
+B 122
+G4 P450
+G1 X-124.4 Y230.8
+C 228
+G1 Z-25
+G1 Z10
+G0 X22.7 Y349.4 Z10
+G4 P50
+B 237
+G1 Z-15
+G4 P450
+G4 P50
+C 300
+G4 P450
+G4 P50
+G1 Z10
+G0 Y300

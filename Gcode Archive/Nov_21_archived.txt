@@ -1,0 +1,118 @@
+G90
+Q G90
+F 430 ; close bottle cover
+E 300 ; close pipette disposal bin
+D 240 ; reset tip ejector
+A 275 ; release plunger
+B 350 ; set rotation servo to neutral
+C 280 ; set clamp to open
+G1 F4000 Z50.0
+Q G1 F2000 Z75
+; start bottom lid placement
+G0 F4000 X176.0 Y-73.2 Z8.0
+G1 F2000 Z-28.6
+M1000 ; Air Pick Grab
+G4 P500
+G1 F4000 Z0
+G0 X-49.6 Y-51.4
+G1 F2000 Z-52.4
+M1002 ; Air Pick Natural
+G4 P500
+G1 Z0
+; start bottom shield placement
+G0 X150.6 Y-47.8
+G1 Z-51.0
+M1000 ; Air Pick Grab
+G4 P500
+G1 Z0
+G0 X-50 Y-50.6
+G1 Z-51.4
+M1002 ; Air Pick Natural
+G4 P500
+G1 Z0
+; start PCB placement
+G1 X38.6 Y-3.4
+B 351
+G1 Z-42
+G1 X40.2 Y-2.6
+G4 P50
+G4 P450
+C 225
+G4 P250
+G1 Z0
+G1 X-18.6 Y-97.2 
+G1 Z-36.8
+G4 P50
+C 281
+G4 P250
+G1 Z0
+; start ring placement
+B 227
+G1 X85.2 Y-32.3
+G1 Z-37.6
+G1 X85.6 Y-31.3
+G4 P50
+C 228
+G4 P250
+G1 Z0
+G1 X-16.4 Y-98.6 
+G1 Z-36.2
+G4 P50
+C 288
+G4 P250
+G1 Z0
+; second base lid placement
+G0 X177.2 Y-72.4
+G1 Z-35.0
+M1000 ; Air Pick Grab
+G4 P500
+G1 Z0
+G0 X0 Y0.6
+G1 Z-51.8
+M1002 ; Air Pick Natural
+G4 S1
+G1 Z0
+; second bottom shield placement
+G0 X150.6 Y-47.8
+G1 Z-52.28
+M1000 ; Air Pick Grab
+G4 P500
+G1 Z0
+G0 X0 Y0
+G1 Z-50.5
+M1002 ; Air Pick Natural
+G4 P500
+G1 Z0
+; added pipette code
+D 240 ; reset tip ejector
+Q G1 F4000 X0 Y0 Z-50
+Q G1 X-0.2 Y0.0 Z-61.0
+Q G1 Z40.6
+Q G4 P50
+F 245 ; open bottle cover
+Q G1 X52.0 Y-56.4 
+A 143 ; press plunger
+Q G1 Z-61.0
+Q G4 P50
+A 275 ; release plunger
+Q G4 P500
+Q G1 Z15.2
+Q G1 X102.8 Y-56.4 
+F 430 ; close bottle cover
+Q G1 X118.4 Y-26.8 
+Q G1 Z-44.0
+Q G4 P50
+A 130 ; eject liquid
+Q G4 P50
+Q G4 S1
+Q G1 Z15
+E 141 ; open pipette disposal bin
+Q G1 X-8.6 Y-26.8
+A 275 ; release plunger
+Q G1 X-8.6 Y-59.2 Z6.8
+Q G4 P50
+D 205 ; eject tip
+Q G1 X0 Y0 Z0
+Q G4 P50
+E 300 ; close pipette disposal bin
+D 240 ; reset tip Ejector
